@@ -1,53 +1,86 @@
 package com.Gadiza.frontend;
 
-public class Player {
-    public String name;
-    public int hp;
-    public int power;
-    public int spellCards;
+public class Player extends GameObject {
+    private String name;
+    private int hp;
+    private int power;
+    private int spellCards;
+    private long score;
 
     public Player(String name, int hp, int power, int spellCards) {
-        this.name = Reimu Hakurei;
-        this.hp = 100;
-        this.power = 15;
-        this.spellCards = 3;
+        super(280, 40, 32, 32, 0, Color.RED);
+        this.name = name;
+        this.hp = hp;
+        this.power = power;
+        this.spellCards = spellCards;
+        this.score = 0;
     }
-    public void takeDamage() {
-        // 1. Reduce hp by the damage value.
-        this.hp = damage;
-        // 2. HP must not become negative.
+
+    public Player(float x, float y, String name, int hp, int power, int spellCards) {
+        super(x, y, 32, 32, 0, Color.RED);
+        this.name = name;
+        this.hp = hp;
+        this.power = power;
+        this.spellCards = spellCards;
+        this.score = 0;
+    }
+
+    public void shoot(Enemy target) {
+        int damage = 10 + power;
+        System.out.println(name + " shoots " + target.name + " dealing " + damage + " DMG!");
+        target.takeDamage(damage);
+    }
+
+    public void takeDamage(int damage) {
+        this.hp -= damage;
         if (this.hp < 0) {
             this.hp = 0;
         }
-        // 3. If HP is still greater than 0, display the remaining HP in the format: [PlayerName] took [damage] damage! Remaining HP: [hp]
-        if (this.hp > 0) {
-            System.out.println(this.name + "took" + this.hp + "damage! Remaining HP: " + this.hp);
-        }
-        // 4. If HP reaches 0, display a message that the Player has been defeated.
+        System.out.println(name + " took " + damage + " damage! Remaining HP: " + this.hp);
         if (this.hp == 0) {
-            System.out.println("The player has been defeated!");
+            System.out.println(name + " was defeated (Pichuun~)! ");
         }
     }
-    public void shoot(Enemy target) {
-        // 1. Create an int named damage, calculated by adding 10 to power.
-        int damage = power + 10;
 
-        // 2. Display information that the Player is shooting the Enemy, in the format: [name] shoots [TargetName] dealing [damage] DMG!
-        if (power == 15) {
-            System.out.println(this.name + "shoots " + this.name + "dealing " + damage + "DMG!");
-        }
-        // 3. Call the Enemy object's takeDamage() method.
-        target.takeDamage(damage);
-    }
     public boolean isAlive() {
-        // 1. Return true if hp > 0, and false otherwise
-        if (this.hp > 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return this.hp > 0;
     }
 
+    public void addScore(long points) {
+        // TODO: Add the value to the player's score if points is greater than 0.
+        this.points = ;
+    }
 
+    public void setHp(int hp) {
+        this.hp = Math.max(0, hp);
+    }
+
+    public int getHp(int hp) {
+        this.hp = Math.max(0, hp);
+        return hp;
+    }
+
+    public void setName(){
+        this.setName();
+    }
+
+    public String getName() {
+        this.getName();
+    }
+
+    public void setPower() {
+
+    }
+
+    public float getPower() {
+
+    }
+
+    public void setSpellCards() {
+
+    }
+
+    public String getSpellCards() {
+
+    }
 }
