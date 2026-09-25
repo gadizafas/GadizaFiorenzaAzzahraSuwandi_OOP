@@ -1,9 +1,25 @@
 package com.Gadiza.frontend;
 
+import com.Gadiza.frontend.objects.GameObject;
+import com.Gadiza.frontend.objects.Player;
+import com.Gadiza.frontend.objects.enemies.Boss;
+import com.Gadiza.frontend.objects.enemies.Enemy;
+import com.Gadiza.frontend.objects.enemies.Fairy;
+import com.Gadiza.frontend.objects.BulletType;
+import com.Gadiza.frontend.objects.items.Item;
+import com.Gadiza.frontend.objects.items.ItemType;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Test {
     public static void main(String[] args) {
+        // ==========================================
+        // MODULE 1: BASIC CLASSES & OBJECT INTERACTION
+        // ==========================================
         System.out.println("=== TOUHOU OOP PRACTICUM - MODULE 1: BASIC CLASSES & OBJECT INTERACTION ===");
 
+        // Instantiating objects (Player and Enemy)
         Player reimu = new Player("Reimu Hakurei", 100, 15, 3);
         Enemy fairyBoss = new Enemy("Cirno (Stage 2 Boss)", 50);
 
@@ -25,11 +41,13 @@ public class Test {
 
         System.out.println("\n=== Battle Simulation Complete ===");
 
+
         // ==========================================
         // MODULE 2: ENCAPSULATION, INHERITANCE & SCORE SYSTEM
         // ==========================================
         System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 2: ENCAPSULATION, INHERITANCE & SCORE SYSTEM ===");
 
+        // Instantiating polymorphic objects
         Player reimu2 = new Player("Reimu Hakurei", 100, 15, 3);
         Fairy fairy = new Fairy("Stage 1 Fairy", 20);
         Boss cirno = new Boss("Cirno (Stage 2 Boss)", 150);
@@ -54,5 +72,61 @@ public class Test {
         System.out.println("Final Score: " + reimu2.getScore() + " pts");
 
         System.out.println("\n=== Module 2 Test Completed Successfully ===");
+
+
+        // ==========================================
+        // MODULE 3: POLYMORPHISM, ABSTRACTION & COLLISION HANDLING
+        // ==========================================
+        System.out.println("\n\n=== TOUHOU OOP PRACTICUM - MODULE 3: POLYMORPHISM & ABSTRACTION ===");
+
+        // 1. Testing Abstraction & Enums
+        System.out.println("--- Testing ItemType & BulletType Enums ---");
+        System.out.println("Available Item Types: " + ItemType.POWER + ", " + ItemType.POINT + ", " + ItemType.BOMB + ", " + ItemType.LIFE);
+        System.out.println("Available Bullet Types: " + BulletType.DANMAKU + ", " + BulletType.AMULET + ", " + BulletType.LASER + ", " + BulletType.MASTER_SPARK);
+
+        // 2. Initializing List<GameObject> entities for iterative updates
+        List<GameObject> entities = new ArrayList<>();
+        Player p = new Player(100, 100, "Reimu Hakurei", 100, 15, 3);
+        Fairy f = new Fairy(100, 100, "Stage 1 Fairy", 20);     // Placed at (100, 100) -> Collides with player!
+        Boss b = new Boss(200, 200, "Cirno", 150);
+        Item item = new Item(300, 300, ItemType.POWER);
+
+        entities.add(p);
+        entities.add(f);
+        entities.add(b);
+        entities.add(item);
+
+        System.out.println("\n--- Testing Iterative Update on List<GameObject> entities ---");
+        System.out.println("Initial Item Y: " + item.getY());
+        for (GameObject entity : entities) {
+            entity.update(0.5f);
+        }
+        System.out.println("Item Y after entity.update(0.5s): " + item.getY());
+
+        System.out.println("\n--- Testing Polymorphic Collision Information ---");
+
+        // Test 1: Player at (100, 100) collides with Fairy at (100, 100)
+        System.out.println("Simulating collision at (100, 100) (Fairy position):");
+        if (p.getCoreHitbox().overlaps(f.getCoreHitbox())) {
+            p.onCollision(f);
+        }
+
+        // Test 2: Move player to Boss at (200, 200)
+        p.setX(200);
+        p.setY(200);
+        System.out.println("Moving player to (200, 200) (Boss position):");
+        if (p.getCoreHitbox().overlaps(b.getCoreHitbox())) {
+            p.onCollision(b);
+        }
+
+        // Test 3: Move player to Item position at (300, item.getY())
+        p.setX(300);
+        p.setY(item.getY());
+        System.out.println("Moving player to (300, " + item.getY() + ") (Item current position):");
+        if (p.getCoreHitbox().overlaps(item.getCoreHitbox())) {
+            p.onCollision(item);
+        }
+
+        System.out.println("\n=== Module 3 Test Completed Successfully ===");
     }
 }

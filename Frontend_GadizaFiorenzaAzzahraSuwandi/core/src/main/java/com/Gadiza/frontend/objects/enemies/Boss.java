@@ -2,28 +2,22 @@ package com.Gadiza.frontend.objects.enemies;
 
 import com.Gadiza.frontend.objects.Collidable;
 import com.badlogic.gdx.graphics.Color;
-import com.Gadiza.frontend.objects.GameObject;
+import com.Gadiza.frontend.objects.Player;
+import com.Gadiza.frontend.objects.items.Item;
 
 public class Boss extends Enemy {
     public Boss(String name, int hp) {
-        super(380f, 400f, 48f, 48f, Color.BLUE, name, hp, 5000L);
+        super(380, 400, 48, 48, Color.BLUE, name, hp, 5000L);
     }
 
     public Boss(float x, float y, String name, int hp) {
-        super(x, y, 48f, 48f, Color.BLUE, name, hp, 5000L);
-    }
-
-    public void Collision(Collidable Player) {
-        System.out.println("Contact with Player!");
+        super(x, y, 48, 48, Color.BLUE, name, hp, 5000L);
     }
 
     @Override
     public void onCollision(Collidable other) {
-        // TODO: Check whether the other received by this method is a Player
-        if () {
+        if (other instanceof Player) {
             System.out.println("Player touches boss");
         }
-        // TODO: Print "Player touches boss"
     }
-
 }

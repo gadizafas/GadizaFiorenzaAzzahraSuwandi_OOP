@@ -21,6 +21,34 @@ public abstract class GameObject implements Collidable {
         this.color = color;
     }
 
+    public void update(float delta) {
+        // Base update method
+    }
+
+    public void render(ShapeRenderer shapeRenderer) {
+        if (shapeRenderer != null && color != null && active) {
+            shapeRenderer.setColor(color);
+            shapeRenderer.rect(x, y, width, height);
+        }
+    }
+
+    @Override
+    public Rectangle getCoreHitbox() {
+        return new Rectangle(x, y, width, height);
+    }
+
+    @Override
+    public Rectangle getGrazeHitbox() {
+        // Graze hitbox is slightly larger than core hitbox (+10px padding)
+        return new Rectangle(x - 10, y - 10, width + 20, height + 20);
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        // Base collision handler (can be overridden by subclasses)
+    }
+
+    // Encapsulation: Getters and Setters
     public float getX() { return x; }
     public void setX(float x) { this.x = x; }
 
@@ -45,29 +73,18 @@ public abstract class GameObject implements Collidable {
     public Color getColor() { return color; }
     public void setColor(Color color) { this.color = color; }
 
-    public void update(float delta) {
+    protected boolean active = true;
+
+    public boolean isDestroyed() {
+        return !active;
     }
 
-    public void render(ShapeRenderer shapeRenderer) {
-        shapeRenderer.setColor(color);
-        shapeRenderer.rect(x, y, width, height);
+    public void destroy() {
+        this.active = false;
     }
 
-    @Override
-    public Rectangle getCoreHitbox() {
-        return new Rectangle(x, y, width, height);
+    public boolean isOffScreen(float screenWidth, float screenHeight) {
+        float margin = 50f;
+        return (x < -margin || x > screenWidth + margin || y < -margin || y > screenHeight + margin);
     }
-
-    @Override
-    public Rectangle getGrazeHitbox() {
-        // TODO: return a Rectangle with +10px padding on every side
-        return new Rectangle((int) x - 10, (int) y - 10, (int) width + 20, (int) height + 20);
-    }
-
-    @Override
-    public void onCollision(Collidable other) {
-        // Base collision handler (can be overridden by subclasses that need to react)
-    }
-
-
 }
