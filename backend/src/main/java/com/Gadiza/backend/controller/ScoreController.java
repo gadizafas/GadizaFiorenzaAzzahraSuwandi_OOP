@@ -61,22 +61,22 @@ public class ScoreController {
     @GetMapping
     public ResponseEntity<List<Score>> getAllScores() {
         // 2. Use scoreService to call getAllScores() and store those scores in a variable using List
-        scoreService.getAllScores();
+        List<Score> scores = scoreService.getAllScores();
         // 3. Return the variable containing those scores
-        return ResponseEntity.status();
+        return ResponseEntity.ok(scores);
     }
 
     // TODO:
     // 1. Add the appropriate annotation for a GET endpoint along with the appropriate endpoint
-    @GetExchange
+    @GetMapping("/{endpoint}")
     public  ResponseEntity<List<Score>> getLeaderboardByPoint(
 	/* 2. add the '@RequestParam' parameter with defaultValue 10
 	   3. as well as Integer limit */ @RequestParam int limit){
         // 4. Use scoreService to call getLeaderboard() with the appropriate parameter
-        scoreService.getLeaderboard(limit);
+        <List<Score> scores = scoreService.getLeaderboard(limit);
         //    and store those scores in a variable using List
         // 5. Return the variable containing those scores
-        return ResponseEntity.status(HttpStatusCode.valueOf(limit));
+        return ResponseEntity.ok(scores);
     }
 
     // TODO:

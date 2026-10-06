@@ -32,28 +32,24 @@ public class ScoreService {
 
     public List<Score> getRecentScores(){
         // TODO: Use scoreRepository to find all scores in the database ordered by newest creation, then return the result
-        return scoreRepository.findAll();
+        return scoreRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public List<Score> getScoreAboveValue(Integer minValue){
         // TODO: Use scoreRepository to find all scores in the database whose points are above a certain value
-        return (List<Score>) scoreRepository.findAll(Pageable.ofSize(minValue));
+        return scoreRepository.findPointGreaterThan(minValue);
         // use minValue as the lower bound of the point value
     }
 
     public List<Score> getLeaderboard(Integer limit) {
         // TODO: Use scoreRepository to find the Top Scores and provide the appropriate parameter
-        return scoreRepository.findTopScores(Pageable.ofSize(limit));
+        return scoreRepository.findTopScores(org.springframework.data.domain.PageRequest.of(0, limit));
     }
 
     public void deleteScore(UUID scoreId) {
-        // TODO:
-        // 1. Find the score you want to delete using scoreRepository, then store that score (hint: see how it's done in getScoreById())
-        scoreRepository.findById(scoreId);
-        // 2. Check whether the score was found or not with `.orElseThrow(()-> new RuntimeException("Score with ID " + scoreId + " was not found"));`
-        RuntimeException.orElseThrow("Score with ID " + scoreId + " was not found"));
-        // 3. Call delete() from scoreRepository to delete the score stored earlier
-        deleteScore(scoreId);
+        Score scoreDelete = scoreRepository.findById(scoreId)
+                .orElseThrow(() -> new RuntimeException("Score with ID " + scoreId + " was not found"));
+        scoreRepository.delete(scoreDelete);
     }
 
 
