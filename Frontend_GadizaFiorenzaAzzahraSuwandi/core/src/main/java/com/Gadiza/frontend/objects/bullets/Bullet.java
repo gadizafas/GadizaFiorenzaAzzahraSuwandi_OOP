@@ -1,11 +1,11 @@
 package com.Gadiza.frontend.objects.bullets;
 
-import com.Gadiza.frontend.objects.Collidable;
-import com.Gadiza.frontend.objects.enemies.Enemy;
 import com.badlogic.gdx.graphics.Color;
+import com.Gadiza.frontend.objects.Collidable;
+import com.Gadiza.frontend.objects.GameObject;
+import com.Gadiza.frontend.objects.enemies.Enemy;
 
 public class Bullet extends GameObject {
-
     private BulletType bulletType;
     private int damage;
 
@@ -23,26 +23,19 @@ public class Bullet extends GameObject {
 
     @Override
     public void update(float delta) {
-        y += speed * delta;
-    }
-
-    public BulletType getBulletType() {
-        return bulletType;
-    }
-
-    public int getDamage() {
-        return damage;
+        // Bullet moves upwards linearly
+        this.y += speed * delta;
     }
 
     @Override
     public void onCollision(Collidable other) {
         if (other instanceof Enemy enemy) {
-            System.out.println("Bullet hit "+enemy.getName()+"for "+damage+" DMG!");
-
-            enemy.takeDamage(this.getDamage());
-
-            enemy.destroy();
+            System.out.println("Bullet hit " + enemy.getName() + " for " + damage + " DMG!");
+            boolean defeated = enemy.takeDamage(damage);
+            this.destroy(); // Bullet is destroyed on collision
         }
     }
 
+    public BulletType getBulletType() { return bulletType; }
+    public int getDamage() { return damage; }
 }

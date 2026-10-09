@@ -1,9 +1,10 @@
 package com.Gadiza.frontend.objects;
 
-import com.Gadiza.frontend.objects.bullets.Bullet;
+import com.Gadiza.frontend.objects.bullets.BulletType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.Gadiza.frontend.objects.bullets.Bullet;
 import com.Gadiza.frontend.objects.items.Item;
 import com.Gadiza.frontend.objects.items.ItemType;
 import com.Gadiza.frontend.objects.enemies.Enemy;
@@ -16,7 +17,7 @@ public class Player extends GameObject {
     private long score;
 
     public Player(String name, int hp, int power, int spellCards) {
-        super(280, 40, 32, 32, 200f, Color.RED);
+        super(280, 40, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -25,7 +26,7 @@ public class Player extends GameObject {
     }
 
     public Player(float x, float y, String name, int hp, int power, int spellCards) {
-        super(x, y, 32, 32, 200f, Color.RED);
+        super(x, y, 32, 48, 200f, Color.RED);
         this.name = name;
         this.hp = hp;
         this.power = power;
@@ -52,6 +53,12 @@ public class Player extends GameObject {
         }
     }
 
+    public Bullet shootBullet() {
+        int damage = 10 + power;
+        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
+        return new Bullet(x + width / 2 - 4, y + height, BulletType.AMULET, damage);
+    }
+
     public void moveUp(float delta) { this.y += speed * delta; }
     public void moveDown(float delta) { this.y -= speed * delta; }
     public void moveLeft(float delta) { this.x -= speed * delta; }
@@ -59,15 +66,15 @@ public class Player extends GameObject {
 
     @Override
     public void onCollision(Collidable other) {
-        if (other instanceof Item) {
+        if (other instanceof Item item) {
             System.out.println("Player touches items");
-            collectItem((Item) other);
+            collectItem(item);
         }
     }
 
     public void shoot(Enemy target) {
-        int damage = 10 + getPower();
-        System.out.println(getName() + " shoots " + target.getName() + " dealing " + damage + " DMG!");
+        int damage = 10 + power;
+        System.out.println(name + " shoots " + target.getName() + " dealing " + damage + " DMG!");
         boolean defeated = target.takeDamage(damage);
         if (defeated) {
             addScore(target.getScoreValue());
@@ -75,6 +82,8 @@ public class Player extends GameObject {
     }
 
     public void collectItem(Item item) {
+        if (item.isDestroyed()) return;
+
         ItemType type = item.getItemTypeEnum();
         if (type != null) {
             switch (type) {
@@ -102,13 +111,18 @@ public class Player extends GameObject {
             addScore(item.getScoreValue());
             System.out.println(name + " collected " + item.getItemType() + "!");
         }
+
+        item.destroy(); // Destroy item after collection so it gets safely removed by Iterator
     }
 
     public void takeDamage(int damage) {
-        setHp(getHp() - damage);
-        System.out.println(getName() + " took " + damage + " damage! Remaining HP: " + getHp());
-        if (getHp() == 0) {
-            System.out.println(getName() + " was defeated (Pichuun~)! ");
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! Remaining HP: " + this.hp);
+        if (this.hp == 0) {
+            System.out.println(name + " was defeated (Pichuun~)! ");
         }
     }
 
@@ -120,7 +134,7 @@ public class Player extends GameObject {
     }
 
     public boolean isAlive() {
-        return getHp() > 0;
+        return this.hp > 0;
     }
 
     // Encapsulation getters and setters
@@ -137,23 +151,4 @@ public class Player extends GameObject {
     public void setSpellCards(int spellCards) { this.spellCards = spellCards; }
 
     public long getScore() { return score; }
-
-    public boolean shootBullet() {
-        int damage = 10 + power;
-        System.out.println(name + " shoots bullet dealing " + damage + " DMG!");
-
-        float bulletX = this.x + (this.width / 2f) - 4f;
-        float bulletY = this.y + this.height;
-
-        return new Bullet(bulletX, bulletY, BulletType.AMULET, damage);
-    }
-
-    public void collectItem(Item item) {
-        if (item.isDestroyed()) return; // Prevent the item from being collected twice in the same frame
-        // ... switch-case for the item type that you created previously ...
-        // TODO: Mark this item as destroyed so it can later be removed by the Iterator
-        // Call the item's destroy() method here!
-        destroy();
-    }
-
 }

@@ -1,4 +1,4 @@
-package com.Gadiza.frontend.objects;
+package com.Gadiza.frontend.objects.bullets;
 
 public enum BulletType {
     DANMAKU,

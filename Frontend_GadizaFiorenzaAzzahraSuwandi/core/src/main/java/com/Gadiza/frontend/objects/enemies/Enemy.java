@@ -1,10 +1,8 @@
 package com.Gadiza.frontend.objects.enemies;
 
 import com.badlogic.gdx.graphics.Color;
-import com.Gadiza.frontend.objects.Collidable;
 import com.Gadiza.frontend.objects.GameObject;
 import com.Gadiza.frontend.objects.Player;
-import com.Gadiza.frontend.objects.items.Item;
 
 public class Enemy extends GameObject {
     protected String name;
@@ -30,11 +28,14 @@ public class Enemy extends GameObject {
 
     public boolean takeDamage(int damage) {
         boolean wasAlive = isAlive();
-        setHp(getHp() - damage);
-        System.out.println(getName() + " took " + damage + " damage! HP: " + getHp() + "/" + getMaxHp());
-        if (wasAlive && getHp() == 0) {
-            System.out.println(getName() + " was defeated!");
-            this.destroy();
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+        System.out.println(name + " took " + damage + " damage! HP: " + this.hp + "/" + this.maxHp);
+        if (wasAlive && this.hp == 0) {
+            System.out.println(name + " was defeated!");
+            this.destroy(); // Mark enemy as destroyed/inactive so Iterator removes it!
             return true;
         }
         return false;

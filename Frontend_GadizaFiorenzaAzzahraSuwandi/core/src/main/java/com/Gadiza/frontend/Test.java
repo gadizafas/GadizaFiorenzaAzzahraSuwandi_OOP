@@ -5,7 +5,7 @@ import com.Gadiza.frontend.objects.Player;
 import com.Gadiza.frontend.objects.enemies.Boss;
 import com.Gadiza.frontend.objects.enemies.Enemy;
 import com.Gadiza.frontend.objects.enemies.Fairy;
-import com.Gadiza.frontend.objects.BulletType;
+import com.Gadiza.frontend.objects.bullets.BulletType;
 import com.Gadiza.frontend.objects.items.Item;
 import com.Gadiza.frontend.objects.items.ItemType;
 
