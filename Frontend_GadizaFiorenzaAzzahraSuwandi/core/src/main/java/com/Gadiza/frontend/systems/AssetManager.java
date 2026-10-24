@@ -146,39 +146,38 @@ public class AssetManager {
     }
 
     public void init() {
-        // Tip 1: Explore values for row, startCol, numFrames, frameDuration, and Animation.PlayMode that look good to you.
-        // Tip 2: Among the .png files registered below, which sprite sheets contain *animation* frames, and which contain *static images*? What does this mean for how you use them?
+        // TODO:
+        // Add any missing animation registrations according to the table.
+        // Use the registerAnimationFromSheet() overload
+        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_left", "player.png", 32, 48, 1, 0, 4, 0.12f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("player_right", "player.png", 32, 48, 2, 0, 4, 0.12f, Animation.PlayMode.LOOP);
 
-        // Register Reimu Hakurei's idle animation (player.png: 32x48 per cell)
-        // Row 0, 4 horizontal frames, 0.1s duration per frame
-        registerAnimationFromSheet("player_idle", "player.png", 32, 48, 0, 4, 0.1f);
+        registerAnimationFromSheet("boss_idle", "rumia.png", 64, 64, 0, 0, 4, 0.2f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("boss_left", "rumia.png", 64, 64, 1, 0, 4, 0.15f, Animation.PlayMode.REVERSED);
+        registerAnimationFromSheet("boss_right", "rumia.png", 64, 64, 2, 0, 4, 0.15f, Animation.PlayMode.NORMAL);
 
-        // Register the Boss's idle animation (rumia.png: 64x64 per cell)
-        registerAnimationFromSheet("boss_idle", "rumia.png", 64, 64, 0, 4, 0.15f);
-
-        registerAnimationFromSheet("fairy_idle", "fairy.png", 32, 32, 0, 4, 0.1f);
-
-        registerRegionFromSheet("bullet_small", "bullets_small.png", 16, 16, 2, 3);
+        registerAnimationFromSheet("fairy_idle_red", "fairy.png", 32, 32, 1, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerAnimationFromSheet("fairy_idle_blue", "fairy.png", 32, 32, 0, 0, 8, 0.125f, Animation.PlayMode.LOOP);
+        registerRegionFromSheet("bullet_danmaku", "bullets_small.png", 16, 16, 2, 3);
 
         registerRegionFromSheet("item_power", "items.png", 16, 16, 0, 0);
         registerRegionFromSheet("item_point", "items.png", 16, 16, 0, 1);
-        registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 2);
-        registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 3);
-        registerRegionFromSheet("player_left", "items.png", 16, 16, 0, 0);
-        registerRegionFromSheet("player_right", "items.png", 16, 16, 0, 0);
-        }
+        registerRegionFromSheet("item_bomb", "items.png", 16, 16, 0, 3);
+        registerRegionFromSheet("item_life", "items.png", 16, 16, 0, 5);
 
+        registerRegionFromSheet("bullet_amulet", "amulet_reimu.png", 16, 16, 0, 0);
+        registerRegionFromSheet("bullet_amulet_homing", "amulet_reimu.png", 16, 16, 1, 0);
     }
 
+
     public void dispose() {
-        // Release all GPU VRAM resources held by Textures
+
+        // TODO: Release the VRAM resources of all loaded Textures, then clear all Maps
         for (Texture texture : textureMap.values()) {
-            if (texture != null) {
-                texture.dispose();
-            }
+            texture.dispose();
         }
 
-        // Clear all maps to prevent memory leaks
         textureMap.clear();
         textureRegionMap.clear();
         animationMap.clear();
