@@ -1,7 +1,9 @@
 package com.Gadiza.frontend.objects;
 
 import com.Gadiza.frontend.objects.bullets.BulletType;
+import com.Gadiza.frontend.objects.patterns.ShootingPattern;
 import com.Gadiza.frontend.systems.AssetManager;
+import com.Gadiza.frontend.systems.BulletManager;
 import com.Gadiza.frontend.systems.EntityFactory;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,6 +14,7 @@ import com.Gadiza.frontend.objects.items.ItemType;
 import com.Gadiza.frontend.objects.enemies.Enemy;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Player extends GameObject {
     private String name;
@@ -214,4 +217,71 @@ public class Player extends GameObject {
         }
     }
 
-}
+    @Override
+    public Rectangle getCoreHitbox() {
+        // TODO: Return a new 8x8 Rectangle centered right in the middle of the sprite:
+        // - X coordinate: x + (width / 2f) - 4f
+        // - Y coordinate: y + (height / 2f) - 4f
+        // - width: 8f, height: 8f
+        return new Rectangle(
+            getX() + (getWidth() / 2f) - 4f,
+            getY() + (getHeight() / 2f) - 4f,
+            8f,
+            8f
+        );
+    }
+
+    @Override
+    public Rectangle getGrazeHitbox() {
+        // TODO: Return a new Rectangle at position coordinates (x, y)
+        //       covering the entire visual sprite dimensions (width, height)
+        return new Rectangle(
+            getX(),
+            getY(),
+            getWidth(),
+            getHeight()
+        );
+    }
+
+    public class Player extends GameObject {
+        private String name;
+        private int hp;
+        private int power;
+        private int spellCards;
+        private long score;
+        private int currentDir = 0;
+
+        // TODO: Declare a private field named shootingPattern of type ShootingPattern.
+        //       No need to initialize it right away.
+        private ShootingPattern shootingPattern;
+
+        // ...
+
+        // TODO: Update shootBullet() to shootBullet(BulletManager bulletManager)!
+        public void shootBullet(BulletManager bulletManager) {
+            // - If bulletManager is null, return immediately
+            // - If shootingPattern is not null, call execute() from the player's muzzle coordinates (x + width / 2f - 8f, y + height)
+            // - If shootingPattern is null, call bulletManager.spawnPlayerBullet() directly
+            if (bulletManager == null) {
+                return;
+            }
+
+            if (shootingPattern != null) {
+                shootingPattern.execute(x + width / 2f - 8f, y + height,m);
+            } else {
+                bulletManager.spawnPlayerBullet();
+            }
+        }
+
+        // ...
+
+        // TODO: Provide a getter and setter for shootingPattern
+        public ShootingPattern getShootingPattern() {
+            return shootingPattern;
+        }
+
+        public ShootingPattern setShootingPattern() {
+            return shootingPattern;
+        }
+
+    }
