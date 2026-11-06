@@ -1,11 +1,14 @@
 package com.Gadiza.frontend;
 
+import com.Gadiza.frontend.commands.Command;
+import com.Gadiza.frontend.commands.InputHandler;
+import com.Gadiza.frontend.observers.GameObserver;
 import com.Gadiza.frontend.systems.*;
+import com.Gadiza.frontend.ui.GameHUD;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.Gadiza.frontend.objects.GameObject;
 import com.Gadiza.frontend.objects.Player;
@@ -18,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.badlogic.gdx.Input.Keys.T;
+
 public class Main extends ApplicationAdapter {
-    private ShapeRenderer shapeRenderer;
+    private SpriteBatch spriteBatch;
     private Player player;
     private List<Fairy> fairy;
     private Boss boss;
@@ -36,20 +41,26 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        // ...
-        // TODO: instantiate a new BulletManager
+        batch = new SpriteBatch();
+        fairy = new ArrayList<>();
+        entities = new ArrayList<>();
+        bulletManager = new BulletManager();
+        collisionReferee = new CollisionReferee();
+        // TODO: Instantiate new objects for inputHandler and gameHUD
+        inputHandler = new InputHandler();
+        gameHUD = new GameHUD;
 
-        // TODO: instantiate a new CollisionReferee
-
-        // ...
 
         @Override
         public void create () {
             batch = new SpriteBatch();
-            shapeRenderer = new ShapeRenderer();
+            spriteBatch = new SpriteBatch();
 
             fairy = new ArrayList<>();
             entities = new ArrayList<>();
+
+            bulletManager = new BulletManager();
+            collisionReferee = new CollisionReferee();
 
             AssetManager.getInstance().init();
 
@@ -60,7 +71,7 @@ public class Main extends ApplicationAdapter {
             AudioSystem.getInstance().loadSound("enemy_dies", "touhou-boss-death-sfx.mp3");
             AudioSystem.getInstance().loadSound("collect_item", "touhou-old-powerup.mp3");
 
-            player = EntityFactory.createPlayer(280, 40, "Reimu Hakurei", 100, 15, 3);
+            player = EntityFactory.createPlayer(200, 50, "Reimu Hakurei", 100, 15, 3);
 
             Fairy redFairy = EntityFactory.createFairy(150, 380, "Red Fairy", 20);
             Fairy blueFairy = EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue");
@@ -68,65 +79,79 @@ public class Main extends ApplicationAdapter {
             fairy.add(redFairy);
             fairy.add(blueFairy);
 
-            boss = EntityFactory.createBoss(380, 400, "Rumia", 150);
+            boss = EntityFactory.createBoss(250, 400, "Rumia", 150);
 
-            powerItem = EntityFactory.createItem(200, 450, ItemType.POWER);
-            pointItem = EntityFactory.createItem(320, 480, ItemType.POINT);
+            powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
+            pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+
+            // TODO: Register gameHUD as an Observer on the player object!
+            // Hint: player.registerObserver(gameHUD);
+            player.registerObserver(gameHUD);
 
             entities.add(player);
             entities.addAll(fairy);
             entities.add(boss);
             entities.add(powerItem);
             entities.add(pointItem);
+
+            // TODO: Register the entities list to inputHandler for bullet conversion during a Bomb!
+            // Hint: inputHandler.setEntities(entities);
+            inputHandler.setEntities(entities);
         }
 
         @Override
-        public void render () {
+        public void render() {
             float delta = Gdx.graphics.getDeltaTime();
 
-            // 1. Check Player Bullet shooting input (Key Z)
-            if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-                entities.add(player.shootBullet());
+            // 0. Restart Game on 'R' key when Game Over
+            // TODO: Check if Gdx.input != null AND the R key was just pressed (isKeyJustPressed(Input.Keys.R))
+            //       AND player.isGameOver() is true: call restartGame();
+            if (Gdx.input != null && isKeyJustPressed(Input.Keys.R) && player.isGameOver() == true) {
+                restartGame();
             }
 
-            // 2. Generic update & safe removal of off-screen/destroyed entities
+            // 1. Process all player inputs through the Command Pattern (Invoker Command Stream)
+            // TODO:
+            // - Retrieve the command stream: List<Command> commands = inputHandler.handleInput(delta);
+            // - Loop through each command in commands and call: command.execute(player, bulletManager);
+            // (Remove any old manual Gdx.input checks in render() if still present!)
+            List<Command> commands = inputHandler.handleInput(delta);
+                for (InputHandler : bulletManager) {
+                    command.execute(player, bulletManager);
+                }
+
+            // 2. Periodic Enemy Action Scheduler
+            updateEnemyScheduler(delta);
+
+            // 3. Generic update & safe removal of standard entities
             updateAndClean(entities, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-            // 3. Collision detection between active entities
-            for (int i = 0; i < entities.size(); i++) {
-                for (int j = i + 1; j < entities.size(); j++) {
-                    GameObject a = entities.get(i);
-                    GameObject b = entities.get(j);
+            // 4. Object Pool Update (BulletManager)
+            bulletManager.update(delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-                    if (!a.isDestroyed() && !b.isDestroyed()) {
-                        if (a.getCoreHitbox().overlaps(b.getCoreHitbox())) {
-                            a.onCollision(b);
-                            b.onCollision(a);
-                        }
-                    }
-                }
-            }
+            // 5. Mediator Pattern Collision Resolution (CollisionReferee - Core vs Graze detection)
+            collisionReferee.resolveCollisions(player, entities, bulletManager);
 
-            // 4. Clear screen
+            // 6. Clear screen
             ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-            // Render Sprites
+            // 7. Render active entity sprites and pooled bullets with SpriteBatch
             batch.begin();
             for (GameObject entity : entities) {
                 if (!entity.isDestroyed()) {
                     entity.render(batch);
                 }
             }
-            batch.end();
+            bulletManager.render(batch);
+            // TODO: Call gameHUD's render method with batch as parameter
+            gameHUD.renderCalls(batch);
 
-            // 5. Render filled hitboxes with ShapeRenderer
-            batch.begin();
-            for (GameObject entity : entities) {
-                if (!entity.isDestroyed()) {
-                    entity.render(batch);
-                }
-            }
             batch.end();
+            // 8. Render UI border frame lines & Focus Mode Core Hitbox indicator (Drawn ON TOP of sprites!)
+            // TODO: Call gameHUD.renderBackground()
+            // TODO: Call player.renderFocusIndicator(gameHUD.getShapeRenderer())
+            gameHUD.renderBackground();
+            player.renderFocusIndicator(gameHUD.getShapeRenderer())
         }
 
         // Non-static (Instance) Generic Method with Bounded Type Parameter <T extends GameObject>
@@ -146,8 +171,8 @@ public class Main extends ApplicationAdapter {
 
         @Override
         public void dispose () {
-            if (shapeRenderer != null) {
-                shapeRenderer.dispose();
+            if (batch != null) {
+                spriteBatch.dispose();
             }
             if (batch != null) {
                 batch.dispose();
@@ -167,4 +192,26 @@ public class Main extends ApplicationAdapter {
             enemyShootTimer = 0f;
         }
     }
+
+    private void restartGame() {
+        System.out.println("[Main] Restarting game...");
+        entities.clear();
+        bulletManager.clearEnemyBullets();
+        bulletManager.clearPlayerBullets();
+        entities.add(player);
+        player.resetGame();
+
+        fairy.clear();
+        fairy.add(EntityFactory.createFairy(150, 380, "Red Fairy", 20));
+        fairy.add(EntityFactory.createFairy(250, 380, "Blue Fairy", 20, "fairy_idle_blue"));
+        boss = EntityFactory.createBoss(250, 400, "Rumia", 150);
+        powerItem = EntityFactory.createItem(180, 450, ItemType.POWER);
+        pointItem = EntityFactory.createItem(220, 480, ItemType.POINT);
+
+        entities.addAll(fairy);
+        entities.add(boss);
+        entities.add(powerItem);
+        entities.add(pointItem);
+    }
+
 }
