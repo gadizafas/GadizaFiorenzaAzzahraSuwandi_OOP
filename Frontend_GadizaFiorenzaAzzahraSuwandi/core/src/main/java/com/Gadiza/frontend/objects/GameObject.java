@@ -97,6 +97,8 @@ public abstract class GameObject implements Collidable {
     public Animation<TextureRegion> getAnimation() { return animation; }
     public void setAnimation(Animation<TextureRegion> animation) { this.animation = animation; }
 
+    public void setActive(boolean active) { this.active = active; }
+
     public float getStateTime() { return stateTime; }
     public void setStateTime(float stateTime) { this.stateTime = stateTime; }
 
@@ -112,4 +114,5 @@ public abstract class GameObject implements Collidable {
         float margin = 50f;
         return (x < -margin || x > screenWidth + margin || y < -margin || y > screenHeight + margin);
     }
+
 }

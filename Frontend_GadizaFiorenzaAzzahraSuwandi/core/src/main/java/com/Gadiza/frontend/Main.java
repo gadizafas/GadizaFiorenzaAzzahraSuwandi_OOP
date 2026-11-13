@@ -1,21 +1,25 @@
 package com.Gadiza.frontend;
 
-import com.Gadiza.frontend.commands.Command;
-import com.Gadiza.frontend.commands.InputHandler;
-import com.Gadiza.frontend.observers.GameObserver;
-import com.Gadiza.frontend.systems.*;
-import com.Gadiza.frontend.ui.GameHUD;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.Gadiza.frontend.commands.Command;
+import com.Gadiza.frontend.commands.InputHandler;
 import com.Gadiza.frontend.objects.GameObject;
 import com.Gadiza.frontend.objects.Player;
 import com.Gadiza.frontend.objects.enemies.Boss;
 import com.Gadiza.frontend.objects.enemies.Fairy;
 import com.Gadiza.frontend.objects.items.Item;
 import com.Gadiza.frontend.objects.items.ItemType;
+import com.Gadiza.frontend.systems.AssetManager;
+import com.Gadiza.frontend.systems.BulletManager;
+import com.Gadiza.frontend.systems.CollisionReferee;
+import com.Gadiza.frontend.systems.EntityFactory;
+import com.Gadiza.frontend.ui.GameHUD;
+import com.Gadiza.frontend.systems.AudioSystem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,6 +42,8 @@ public class Main extends ApplicationAdapter {
     // TODO: Create a private field to store CollisionReferee
     private CollisionReferee collisionReferee;
     private float enemyShootTimer = 0f;
+    private InputHandler inputHandler;
+    private GameHUD gameHUD;
 
     @Override
     public void create() {
@@ -172,10 +178,10 @@ public class Main extends ApplicationAdapter {
         @Override
         public void dispose () {
             if (batch != null) {
-                spriteBatch.dispose();
-            }
-            if (batch != null) {
                 batch.dispose();
+            }
+            if (gameHUD != null) {
+                gameHUD.dispose();
             }
 
             // TODO: Call dispose on AssetManager to release the loaded Textures as well.

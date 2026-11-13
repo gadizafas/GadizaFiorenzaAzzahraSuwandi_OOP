@@ -168,6 +168,16 @@ public class AssetManager {
 
         registerRegionFromSheet("bullet_amulet", "amulet_reimu.png", 16, 16, 0, 0);
         registerRegionFromSheet("bullet_amulet_homing", "amulet_reimu.png", 16, 16, 1, 0);
+
+        // TODO (4 points): Register Danmaku bullet texture color variants (bullets_small.png, 16x16 per tile)
+        // Use registerRegionFromSheet() with parameters: key, filename, tileWidth, tileHeight, row, col
+        registerRegionFromSheet("bullet_danmaku",        "bullets_small.png", 16, 16, 2, 3); // Default / Blue
+        registerRegionFromSheet("bullet_danmaku_blue",   "bullets_small.png", 16, 16, 2, 3);
+        registerRegionFromSheet("bullet_danmaku_red",    "bullets_small.png", 16, 16, 2, 6);
+        registerRegionFromSheet("bullet_danmaku_purple", "bullets_small.png", 16, 16, 2, 4);
+        registerRegionFromSheet("bullet_danmaku_orange", "bullets_small.png", 16, 16, 2, 15);
+        registerRegionFromSheet("bullet_danmaku_green",  "bullets_small.png", 16, 16, 2, 10);
+
     }
 
 
@@ -182,5 +192,6 @@ public class AssetManager {
         textureRegionMap.clear();
         animationMap.clear();
     }
+
 }
 
