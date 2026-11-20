@@ -221,7 +221,7 @@ public class Player extends EntityShooter {
 
         // TODO (2 points): If sideShootingPattern is not null and homingShootTimer is greater than or equal to homingCooldown,
         // call sideShootingPattern.execute(x + width / 2f - 8f, y + height, bulletManager, true), then reset homingShootTimer to zero.
-        if (sideShootingPattern != null && >= homingCooldown) {
+        if (sideShootingPattern != null && homingShootTimer >= homingCooldown) {
             sideShootingPattern.execute(x + width / 2f - 8f, y + height, bulletManager, true);
             homingShootTimer = 0;
 
@@ -235,9 +235,23 @@ public class Player extends EntityShooter {
             invulnerableTimer = 5.0f; // 5 seconds invulnerability during Fantasy Seal!
             notifySpellCardsChanged();
             if (bulletManager != null) {
-                bulletManager.clearEnemyBullets(entities); // Clears all enemy bullets on screen & converts to drop items!
+                bulletManager.clearEnemyBullets(entities);
+
+                // Search for an active enemy target to chase (Boss or Fairy)
+                GameObject target = null;
+                if (entities != null) {
+                    for (GameObject obj : entities) {
+                        if (obj instanceof Enemy enemy && !enemy.isDestroyed()) {
+                            target = enemy;
+                            break;
+                        }
+                    }
+                }
+
+                // TODO (2 points): Call spawnBombOrbs on bulletManager from Player center (x + width / 2f, y + height / 2f) with target and entities arguments
+                bulletManager.spawnBombOrbs(getx + width / 2f, y + height / 2f);
             }
-            System.out.println(name + " unleashes SPELL CARD (Fantasy Seal)! All enemy bullets cleared!");
+            System.out.println(name + " unleashes SPELL CARD: Spirit Sign Fantasy Seal (霊符「夢想封印」)! All enemy bullets cleared & 8 homing orbs launched!");
         } else {
             System.out.println("No Spell Cards (Bombs) remaining!");
         }
@@ -407,7 +421,7 @@ public class Player extends EntityShooter {
     public void resetGame() {
         this.lives = 3;
         this.hp = 100;
-        this.power = 15;
+        this.power = 0;
         updatePowerStrategy();
         this.spellCards = 3;
         this.score = 0;
@@ -569,4 +583,10 @@ public class Player extends EntityShooter {
     }
 
     public long getScore() { return score; }
+
+    public ShootingPattern getMainShootingPattern() { return mainShootingPattern; }
+    public ShootingPattern getSideShootingPattern() { return sideShootingPattern; }
+    public float getShootCooldown() { return shootCooldown; }
+    public float getHomingCooldown() { return homingCooldown; }
+
 }

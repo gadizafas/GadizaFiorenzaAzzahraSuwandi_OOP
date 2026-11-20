@@ -1,11 +1,16 @@
 package com.Gadiza.frontend.ui;
 
+import com.Gadiza.frontend.network.ScoreEntry;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.Gadiza.frontend.observers.GameObserver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameHUD implements GameObserver {
     private long score;
@@ -17,6 +22,17 @@ public class GameHUD implements GameObserver {
 
     private BitmapFont font;
     private ShapeRenderer shapeRenderer;
+
+    // ...
+// [ADD] New fields inside the GameHUD class:
+    private static final float PLAYFIELD_CENTER_X = 32f + 384f / 2f;
+
+    private boolean stageClear = false;
+    private String scoreboardStatus = null;
+    private final List<String> leaderboardLines = new ArrayList<>();
+    private GlyphLayout glyphLayout;
+// ...
+
 
     public GameHUD() {
         // Lazily initialized during rendering so it can run safely in headless CLI tests
@@ -66,13 +82,15 @@ public class GameHUD implements GameObserver {
             }
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.LIGHT_GRAY);
-            // Playfield boundary box: X: 32..416, Y: 16..560 (Width 384, Height 544)
-            shapeRenderer.rect(32, 16, 384, 544);
+            // Playfield boundary box: X: 32..416, Y: 16..464 (Width 384, Height 448)
+            shapeRenderer.rect(32, 16, 384, 448);
 
-            // Information panel (Sidebar) boundary box: X: 432..768, Y: 16..560 (Width 336, Height 544)
+            // Sidebar boundary box: X: 432..SidebarRight, Y: 16..464 (Height 448)
+            float sidebarWidth = (Gdx.graphics != null && Gdx.graphics.getWidth() == 640) ? 192 : 336;
             shapeRenderer.setColor(Color.DARK_GRAY);
-            shapeRenderer.rect(432, 16, 336, 544);
-            shapeRenderer.end();
+            shapeRenderer.rect(432, 16, sidebarWidth, 448);
+
+            // [UPDATE] Inside renderBackground(), adjust box dimensions for the 640x480 window:
         }
     }
 
@@ -84,6 +102,10 @@ public class GameHUD implements GameObserver {
             }
 
             if (font != null) {
+                if (glyphLayout == null) {
+                    glyphLayout = new GlyphLayout();
+                }
+
                 font.draw(batch, "=== TOUHOU PRACTICUM ===", 448, 540);
                 font.draw(batch, "HighScore: " + String.format("%09d", Math.max(score, 999990L)), 448, 500);
                 font.draw(batch, "Score:     " + String.format("%09d", score), 448, 470);
@@ -98,9 +120,53 @@ public class GameHUD implements GameObserver {
                 font.draw(batch, "Z            : Shoot", 448, 140);
                 font.draw(batch, "X            : SpellCard (Bomb)", 448, 110);
                 font.draw(batch, "R            : Restart (on Game Over)", 448, 80);
+
+                if (stageClear || lives <= 0) {
+                    renderRunEndLeaderboard(batch);
+                }
             }
         }
     }
+
+
+    // ...
+
+    // [ADD] Helper & scoreboard control methods inside GameHUD:
+    private void renderRunEndLeaderboard(SpriteBatch batch) {
+        font.setColor(stageClear ? Color.GOLD : Color.SALMON);
+        drawCenteredOnPlayfield(batch, stageClear ? "=== STAGE 1 CLEAR! ===" : "=== GAME OVER ===", 360f);
+        font.setColor(Color.WHITE);
+
+        drawCenteredOnPlayfield(batch, "--- LEADERBOARD ---", 320f);
+        if (scoreboardStatus != null) {
+            drawCenteredOnPlayfield(batch, scoreboardStatus, 295f);
+        }
+        for (int i = 0; i < leaderboardLines.size(); i++) {
+            drawCenteredOnPlayfield(batch, leaderboardLines.get(i), 265f - i * 24f);
+        }
+        drawCenteredOnPlayfield(batch, "Press R to Restart", 120f);
+    }
+
+    private void drawCenteredOnPlayfield(SpriteBatch batch, String text, float y) {
+        if (text == null) return;
+        glyphLayout.setText(font, text);
+        font.draw(batch, glyphLayout, PLAYFIELD_CENTER_X - glyphLayout.width / 2f, y);
+    }
+
+    public void showLeaderboard(List<ScoreEntry> entries) {
+        leaderboardLines.clear();
+        for (int i = 0; i < entries.size(); i++) {
+            ScoreEntry entry = entries.get(i);
+            leaderboardLines.add((i + 1) + ". " + entry.getPlayerName() + "  " + String.format("%09d", entry.getPoint()));
+        }
+    }
+
+    public void clearScoreboard() {
+        stageClear = false;
+        scoreboardStatus = null;
+        leaderboardLines.clear();
+    }
+
 
     public void dispose() {
         if (font != null) font.dispose();
@@ -134,5 +200,21 @@ public class GameHUD implements GameObserver {
 
     public int getGrazeCount() {
         return grazeCount;
+    }
+
+    public String getScoreboardStatus() {
+        return scoreboardStatus;
+    }
+
+    public void setScoreboardStatus(String scoreboardStatus) {
+        this.scoreboardStatus = scoreboardStatus;
+    }
+
+    public boolean isStageClear() {
+        return stageClear;
+    }
+
+    public void setStageClear(boolean stageClear) {
+        this.stageClear = stageClear;
     }
 }

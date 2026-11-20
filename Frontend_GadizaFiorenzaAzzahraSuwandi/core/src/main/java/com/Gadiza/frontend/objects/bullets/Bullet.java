@@ -6,6 +6,7 @@ import com.Gadiza.frontend.objects.Collidable;
 import com.Gadiza.frontend.objects.GameObject;
 import com.Gadiza.frontend.objects.enemies.Enemy;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Bullet extends GameObject {
     private BulletType bulletType;
@@ -15,6 +16,7 @@ public class Bullet extends GameObject {
     private boolean isPlayerBullet;
     private boolean grazed;
     private BulletMovementPattern movementPattern;
+    private static final float PLAYER_SHOT_HITBOX = 12f;
 
     public Bullet(float x, float y, BulletType bulletType, int damage) {
         super(x, y, 16, 16, 400f, Color.YELLOW);
@@ -62,6 +64,14 @@ public class Bullet extends GameObject {
             boolean defeated = enemy.takeDamage(damage);
             this.destroy(); // Bullet is destroyed on collision
         }
+    }
+
+    public Rectangle getShotHitbox() {
+        if (!isPlayerBullet) {
+            return getCoreHitbox();
+        }
+        return new Rectangle(x + (width - PLAYER_SHOT_HITBOX) / 2f, y + (height - PLAYER_SHOT_HITBOX) / 2f,
+            PLAYER_SHOT_HITBOX, PLAYER_SHOT_HITBOX);
     }
 
     public BulletMovementPattern getMovementPattern() { return movementPattern; }
